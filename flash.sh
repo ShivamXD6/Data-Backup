@@ -65,7 +65,7 @@ BAKDIR="$SDDIR/#Backup"
     BAKDIR="$BAKEXT"
   }
   true
-} || BAKDIR="$BAKEXT"
+} || [ -d "$BAKEXT" ] && BAKDIR="$BAKEXT"
 
 # Update Vars for Backup Mode Folder
 PKGAPPS="$BAKDIR/APPS"
