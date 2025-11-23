@@ -86,14 +86,10 @@
 ## 📥 Installation Guide
 
 ### Just flash Module and follow the instructions display on your screen :)
-### [Created Modules pack example here](https://t.me/buildbytes/54)
-
-> [!NOTE]
-> This module doesn’t install itself. It just helps you to build or install your modules pack.
 
 ## 🙏 Support & Donations
 
-If you find Bundle-Mods helpful and want to support development, you can donate here:
+If you find Data-Backup helpful and want to support development, you can donate here:
 
 💰 **PayPal:** [Donate via PayPal](https://paypal.me/ShivamXD6)
 
@@ -105,4 +101,4 @@ Every contribution helps keep the project alive and improved! Thank you! 😊
 
 ## 🤝 Contribute
 ### Want to help improve this project?
-Even if you don't know coding much you can contribute to data.sh for modules data paths :)
+May help to create a WebUI for this module :)
