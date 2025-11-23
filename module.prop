@@ -1,0 +1,6 @@
+id=bundle-mods
+name=📀 Data Backup
+version=v4+
+versionCode=45
+author=@BuildBytes
+description=A Sub-Module of 🗃️ Bundle Mods to Backup your User Apps with their Data. Much Faster than Swift Backup or other similar Apps*.
