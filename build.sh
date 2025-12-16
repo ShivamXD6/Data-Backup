@@ -2,7 +2,7 @@
 cd "/sdcard/#Data-Backup" || exit 1
 modzip="#Data-Backup.zip"
 target="load.sh"
-ignorezip="-name build.sh -o -name bundle.sh -o -name load.sh"
+ignorezip="-name build.sh"
 temp_hashes=$(mktemp)
 temp_output=$(mktemp)
 
@@ -30,9 +30,6 @@ SET() {
   fi
   echo "✍️ Set $1=$2 in $3"
 }
-
-# Compile bundle.sh to binary
-shc -rUf bundle.sh -o bundle && rm -f bundle.sh.x.c
 
 # Hash creation and combination
 while IFS= read -r -d '' file; do
@@ -95,11 +92,7 @@ FILES=$(find . -mindepth 1 -maxdepth 1 \( -type f -o -type d \) ! \( $ignorezip 
 SET "PREFIX" "'$PREFIX'" "$target"
 SET "INFIX" "'$INFIX'" "$target"
 SET "SUFFIX" "'$SUFFIX'" "$target"
-SET "EXPECTED_COUNT" "$(( $(echo "$FILES" | wc -l) + 2 ))" "$target"
-
-# Compile load.sh to binary
-shc -rUf "$target" -o load && rm -f load.sh.x.c
-echo "✅ Binary Compilation Complete: bundle and load"
+SET "EXPECTED_COUNT" "$(( $(echo "$FILES" | wc -l) + 1 ))" "$target"
 
 # Zip files
 FILES=$(find . -mindepth 1 -maxdepth 1 \( -type f -o -type d \) ! \( $ignorezip \))
