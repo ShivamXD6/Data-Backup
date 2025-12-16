@@ -1,13 +1,11 @@
 #!/system/bin/sh
 
 # Module Info UI
-DEKH "$(PADH "name" "$MODPATH/module.prop")" "h#" 1
-DEKH "🗃️ A Sub-Module of Bundle Mods v4+"
+DEKH "$(PADH "name" "$MODPATH/module.prop")" "h#"
 DEKH "🌟 Made By $(PADH "author" "$MODPATH/module.prop")"
 DEKH "⚡ Version - $(PADH "version" "$MODPATH/module.prop")"
-DEKH "💻 Architecture - $ARCH"
 DEKH "🎲 Rooting Implementation - $ROOT"
-DEKH "📝 $(PADH "description" "$MODPATH/module.prop")"
+DEKH "📝 $(PADH "description" "$MODPATH/module.prop")" 1
 
 # Check for any external media
 if [ -n "$EXTSD" ]; then
@@ -18,19 +16,19 @@ fi
 
 # Backup Storing Method
 BAKMODE="FOLDER"
-mkdir -p "$SDDIR/#Backup"
 BAKDIR="$SDDIR/#Backup"
+[ ! -d "$BAKDIR" ] && BAKDIR="$(dirname "$(find "$SDDIR" -maxdepth 2 -type f -name '.bundle-mods' | head -n 1)")"; [ "$BAKDIR" = "." ] && BAKDIR="$SDDIR/#Backup" && mkdir -p "$BAKDIR"
 PKGAPPS="$BAKDIR/APPS"
 > "$BAKDIR/.bundle-mods"
-rm -f "$BAKDIR/"*.zip
+[ ! -f "$ADBDIR/.bundle-ex" ] && NEWUSER=1
 
 # Create Base of Module Pack
-DEKH "⚒️ Building Module Package" "h"
+[ "$NEWUSER" -eq 1 ] && DEKH "⚒️ Building Module Package" "h"
 mkdir -p "$PKGDIR"
 touch "$PKGDIR/flash.sh"
 cp -af "$VTD/META-INF" "$PKGDIR/META-INF"
 cp -af "$VTD/customize.sh" "$PKGDIR/customize.sh"
-cp -af "$VTD/bundle" "$PKGDIR/load"
+cp -af "$VTD/bundle.sh" "$PKGDIR/load.sh"
 cp -af "$VTD/porygonz" "$PKGDIR/porygonz"
 cp -af "$VTD/snorlax" "$PKGDIR/snorlax"
 cp -af "$VTD/zapdos" "$PKGDIR/zapdos"
@@ -40,19 +38,19 @@ cp -af "$VTD/service.sh" "$PKGDIR/service.sh"
 cat > "$PKGDIR/flash.sh" << 'FINISH'
 #!/system/bin/sh
 # Module Info UI
-DEKH "$(PADH "name" "$MODPATH/module.prop")" "h#" 1
-DEKH "🗃️ Powered By Bundle Mods v4+"
+DEKH "$(PADH "name" "$MODPATH/module.prop")" "h#"
 DEKH "🌟 Packed By $(PADH "author" "$MODPATH/module.prop")"
 DEKH "⚡ Version - $(PADH "version" "$MODPATH/module.prop")"
-DEKH "🎲 Rooting Implementation - $ROOT"
+DEKH "🎲 Rooting Implementation - $ROOT" 1
 
 # Check for Backups
 DEKH "🔎 Looking for Backups" "h"
 BAKDIR="$SDDIR/#Backup"
-[ ! -d "$BAKDIR" ] && BAKDIR="$(dirname "$(find "$SDDIR" -maxdepth 2 -type f -name '.bundle-mods' | head -n 1)")"; [ "$BAKDIR" = "." ] && unset BAKDIR
+[ ! -d "$BAKDIR" ] && BAKDIR="$(dirname "$(find "$SDDIR" -maxdepth 2 -type f -name '.bundle-mods' | head -n 1)")"; [ "$BAKDIR" = "." ] && BAKDIR="$SDDIR/#Backup"
 [ -n "$EXTSD" ] && {
   BAKEXT="$EXTSD/#Backup"
-  [ ! -d "$BAKEXT" ] && BAKEXT="$(dirname "$(find "$EXTSD" -maxdepth 2 -type f -name '.bundle-mods' | head -n 1)")"; [ "$BAKEXT" = "." ] && unset BAKEXT
+  [ ! -d "$BAKEXT" ] && BAKEXT="$(dirname "$(find "$EXTSD" -maxdepth 2 -type f -name '.bundle-mods' | head -n 1)")"; [ "$BAKEXT" = "." ] && BAKEXT="$EXTSD/#Backup"
+  [ ! -d "$BAKDIR" ] && [ -d "$BAKEXT" ] && BAKDIR="$BAKEXT"
 }
   
 [ ! -d "$BAKDIR" ] && [ ! -d "$BAKEXT" ] && DEKH "❌ Can't find anything to install" "hx" && exit 1
@@ -64,8 +62,8 @@ BAKDIR="$SDDIR/#Backup"
   OPT; [ $? -eq 1 ] && {
     BAKDIR="$BAKEXT"
   }
-  true
-} || [ -d "$BAKEXT" ] && BAKDIR="$BAKEXT"
+}
+[ ! -f "$ADBDIR/.bundle-ex" ] && NEWUSER=1
 
 # Update Vars for Backup Mode Folder
 PKGAPPS="$BAKDIR/APPS"
@@ -84,8 +82,9 @@ FETCHAPPS
 DEKH "⏬ Installing Apps" "h"
 INSTALL
 
+[ "$NEWUSER" -eq 1 ] && {
 # Prompt to join Channel
-DEKH "🔗 @BuildBytes is quietly building things worth exploring. Want to be there early?" "h#" 1
+DEKH "🔗 @BuildBytes is quietly building things worth exploring. Want to be there early?" "h#"
 DEKH "🔊 Vol+ = Yes, I’m in. early, curious, and ahead\n🔉 Vol- = No, I’ll scroll past and miss it\n"
 OPT
 if [ $? -ne 1 ]; then
@@ -93,12 +92,14 @@ if [ $? -ne 1 ]; then
 else
   DEKH "🫥 You passed.\nNo noise, no regret, just a silent skip over something built with intent.\nI’ll stay here, quietly excellent, waiting for those who notice before it’s popular."
 fi
-DEKH "📦 Everything from Pack Installed Successfully" "h"
+}
 wait
+DEKH "📦 Everything from Pack Installed Successfully" "h" 1
 
 # Remove Bundle-Mods
 (
 sleep 0.2
+touch "$ADBDIR/.bundle-ex"
 rm -rf "$MODPATH" "$MODDIR/bundle-mods" 
 )&
 FINISH
@@ -113,7 +114,6 @@ INSAPPS
 
 # Check if the user is Chhota Bheem
 ADDCNT=$(CNTSTR "ADDED")
-SKPCNT=$(CNTSTR "SKIPPED")
 
 # Example 1:
 [ "$ADDCNT" -eq 0 ] && DEKH "🤡 This bundle pack is as empty as your love life." "hx" && exit 10
@@ -121,17 +121,9 @@ SKPCNT=$(CNTSTR "SKIPPED")
 # Example 2:
 [ "$ADDCNT" -le 2 ] && DEKH "🫥 Your bundle/pack has less content than your last relationship." "h"
 
-# Calculate Percentage
-TOTALCNT=$((SKPCNT + ADDCNT))
-ADDPRCN=$((ADDCNT * 100 / TOTALCNT))
-SKIPPRCN=$((SKPCNT * 100 / TOTALCNT))
-
-# Example 3:
-[ "$SKIPPRCN" -ge 90 ] && DEKH "😔 Looks like you have Commitment issues." "h"
-
 # Customize Module Name and Author
-DEKH "🎨 Do you want to change the bundle/pack name and author?" "h" 1
-DEKH "🔊 Vol+ = Yes\n🔉 Vol- = No" 0.5
+DEKH "🎨 Do you want to change the bundle/pack name and author?" "h"
+DEKH "🔊 Vol+ = Yes\n🔉 Vol- = No"
 OPT
 if [ $? -eq 0 ]; then
   DEKH "\nℹ️ Follow Instructions :-\n- Rename below files:\n- '$NAMEPH'\n- '$AUTHORPH'\n- '$VERSIONPH'\n📂 in $RNMDIR\n" 3
@@ -143,13 +135,13 @@ if [ $? -eq 0 ]; then
   CUSAUTHOR="$(CRENAME "$RNMDIR" "$AUTHORPH")" || CUSAUTHOR="Unknown"
   DEKH "✅ Pack Author set to: $CUSAUTHOR"
   touch "$RNMDIR/$VERSIONPH"
-  CUSVERSION="$(CRENAME "$RNMDIR" "$VERSIONPH")" || CUSVERSION="v4+ ($NOW)"
+  CUSVERSION="$(CRENAME "$RNMDIR" "$VERSIONPH")" || CUSVERSION="v2 ($NOW)"
   DEKH "✅ Pack Version set to: $CUSVERSION"
   CFM; rm -rf "$RNMDIR"; sleep 1
 else
   CUSNAME="🧰 Apps Package - $(getprop ro.product.model)"
   CUSAUTHOR="Unknown"
-  CUSVERSION="v4+ ($NOW)"
+  CUSVERSION="v2 ($NOW)"
   DEKH "✅ Using Default Values: \n$CUSNAME [$CUSVERSION] by $CUSAUTHOR"
 fi
 
@@ -160,12 +152,13 @@ SET description "Packed $ADDCNT Apps in $(getprop ro.product.model), (A$(getprop
 SET version "$CUSVERSION" "$PKGDIR/module.prop"
 
 # Data Backup Package
-DEKH "✅ Finalizing your Data Backup." "h"
-PACKFILE="$SDDIR/#Backup/$CUSNAME.zip"
+rm -f "$BAKDIR/"*.zip
+PACKFILE="$BAKDIR/$CUSNAME.zip"
 cd "$PKGDIR"
 $SNORLAX -qr "$PACKFILE" .
 
-DEKH "🔗 @BuildBytes is quietly building things worth exploring. Want to be there early?" "h#" 1
+[ "$NEWUSER" -eq 1 ] && {
+DEKH "🔗 @BuildBytes is quietly building things worth exploring. Want to be there early?" "h#"
 DEKH "🔊 Vol+ = Yes, I’m in. early, curious, and ahead\n🔉 Vol- = No, I’ll scroll past and miss it\n"
 OPT
 if [ $? -ne 1 ]; then
@@ -173,14 +166,13 @@ if [ $? -ne 1 ]; then
 else
   DEKH "🫥 You passed.\nNo noise, no regret, just a silent skip over something built with intent.\nI’ll stay here, quietly excellent, waiting for those who notice before it’s popular."
 fi
+}
 
 # Finalised and Cleanup
-DEKH "📦 Your Bundled Pack is Ready" "h"
-DEKH "📊 Summary:" "h"
-DEKH "✅ Apps Added: $ADDCNT (~$ADDPRCN%)"
-DEKH "⏩ Apps Skipped: $SKPCNT (~$SKIPPRCN%)"
-DEKH "👇 FLASH BELOW ZIP TO RESTORE 👇" "h#" 1
-DEKH "📁 - $PACKFILE\n"
+DEKH "📦 Your Data Backup is Ready" "h"
+DEKH "✅ Apps Added: $ADDCNT"
+DEKH "👇 FLASH BELOW ZIP TO RESTORE 👇" "h#"
+DEKH "📁 - $PACKFILE\n" 1
 
 # Remove Bundle-Mods
 (
