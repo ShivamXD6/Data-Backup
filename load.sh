@@ -6,9 +6,9 @@ chmod 700 "$TMPDIR"
 VTD="$TMPDIR/.verify"
 mkdir -p "$VTD"
 unzip -o "$ZIPFILE" -d "$VTD" >&2
-PREFIX=' 3ba221f1046a4af4 132f86a5 f6234468f5 00399edd4de7f2 806cbe 766de0 775fc3e586566b 8cc8369129 f782118169cc74 cf97991ebe'
-INFIX=' bd653ca4d1 7709f56699824839 6ec27fa1 354244cc380e67 80a08bf089 ab7dcbf609 17387ba1 b499c2b94161 31835c 12aa3c3440c9cd6c'
-SUFFIX=' 0248088184bf2108 9e8ffc41c1 270423 2479c194af 30b221fa 272e263d5e bd0bc889eab5 e6722f 086cfd63ad887bfa f4a49007aa'
+PREFIX=' d5f85b5ac4bce1 426c0a2c5e60b2f7 ddf3e1cc42 06a828845ac6 0c2e1f 9e2a45 9a003c7330 9f8c157c ec1427206e'
+INFIX=' 9df3bb269a5fc3 07e5f53a99bac4 ba23f25a2d ffd02bcf89 909b6485348b3da3 b286c8d0aba537 6f00de c52b97e2ed 26ab14a82e'
+SUFFIX=' 4ab841de8ab869 5e9a12 de17d5c3 29268db5e1 4451de f6f2fb6a 5997cba8689c7a20 c87aeca9 9d687bab4378'
 EXPECTED_COUNT=11
 ACTUAL_COUNT=$(find "$VTD" -type f | wc -l)
 export TMPLOC="/data/local/tmp"
@@ -16,13 +16,13 @@ rm -rf "$TMPLOC" && mkdir -p "$TMPLOC"
 ADBDIR="/data/adb"
 MODDIR="$ADBDIR/modules"
 SDDIR=$(realpath "/sdcard")
-EXTSD=$(find /storage -mindepth 1 -maxdepth 1 -type d 2>/dev/null | grep -Ev '/(emulated|self)' | grep -E '/[0-9A-Z]{4,}-[0-9A-Z]{4,}$' | head -n 1)
+EXTSD=$(find /storage -mindepth 1 -maxdepth 1 -type d 2>/dev/null | grep -Ev '/(emulated|self)' | grep -E '/[0-9A-Z]{4,}[0-9A-Z]{4,}$' | head -n 1)
 PKGDIR="$MODPATH/PACKED"
 PKGAPPS="$PKGDIR/APPS"
 DOWNDIR="$SDDIR/Download"
 RNMDIR="$DOWNDIR/Rename_Module_Meta"
 RNMFLD="$(basename $RNMDIR)"
-SELDIR="$DOWNDIR/Delete_To_Select"
+SELDIR="$DOWNDIR/Delete_To_Backup"
 SELFLD="$(basename $SELDIR)"
 Hashes="$MODPATH/hashes"
 NAMEPH="#Rename_Name"
@@ -32,11 +32,10 @@ ARCH=$(getprop ro.product.cpu.abi)
 SNORLAX="$MODPATH/snorlax"
 PORYGONZ="$MODPATH/porygonz"
 ZAPDOS="$MODPATH/zapdos"
+JOBS=$(nproc); JOBS=${JOBS:-4}
 NOW=$(date +"%I:%M %p - %d/%m/%Y")
 ADDED=""
-SKIPPED=""
-MCNT=1
-APPCNT=1
+ACNT=1
 chmod +x "$SNORLAX" "$PORYGONZ" "$ZAPDOS"
 
 # Only 64-Bit Supported
@@ -47,16 +46,15 @@ echo "$ARCH" | grep -qE 'arm64-v8a' || {
 
 # Write Hashes
 cat > "$Hashes" << 'HASHED'
-3ba221f1046a4af46e9c2c8917a39c68de524000651c81e5b4fca88ef38b4833bd653ca4d107cba5e8781b376d2bc3b29766446fd1137d8bcd7bbb7ef90248088184bf2108 "./customize.sh"
-132f86a5f8430551cc9b915f59ee944a7fb4f5f3bfa78b1f474538dc7709f56699824839d04f6c8a38fedd3971686dd27265e6d162d7122e8396888d9e8ffc41c1 "./flash.sh"
-f6234468f50cb1005c65c89bc24a8b4dd06d033c9b624b2cd5a0f63b786ec27fa107df9d2448977e3e102515ca3300de2ec96db8c23626ab99270423 "./snorlax"
-00399edd4de7f23a033b058f730703da1f906c1fc563163a94dd22be08d5b6354244cc380e673bec379dfddd4301c8bce6af9c0c06cb2e9c4172ca2b4a7a2479c194af "./zapdos"
-806cbef9f284681331fe803ec1170fdbe7df4c7affd79b003f625280a08bf089c0bcde934f53b7c82ffc0400fbe1efaf81e6d980de72049e30b221fa "./porygonz"
-766de0181f686650e1a30cf1ab7d77ce06c5c7cf9e4ee79bfa0b12ab7dcbf60982da3e80200c30be548858ab9e387fd65b6f3bf3cb729baa272e263d5e "./service.sh"
-775fc3e586566b7f18ec95eed0658affea288928456bdd19e029dc8b6e348417387ba103c9a23f280712e4896d1009748f766c4e3b0a1a65927fe7bd0bc889eab5 "./META-INF/com/google/android/update-binary"
-8cc8369129bd23b8290319c3a083de43ad0176fde017b9c7821e80aa52b499c2b941611e1f98077b8628f2b1cdb70c603d60d67de5c5b81a78c242e6722f "./META-INF/com/google/android/updater-script"
-f782118169cc7483b66d4f42017d3bdf88aae7eee34e08b128e5e1bec4e15331835c3b17ccafdf6fff36ac2ec5e82ed3fcaf7c0f666e3ea4c456086cfd63ad887bfa "./module.prop"
-cf97991ebe75b1e3c969484503c9b89d422e00c65df16351179905420b12aa3c3440c9cd6c8d8669c4260471b789ecb2bd6e1a50c953c1a721832526bbf4a49007aa "./bundle"
+d5f85b5ac4bce1181f686650e1a30cf1ab7d77ce06c5c7cf9e4ee79bfa0b129df3bb269a5fc382da3e80200c30be548858ab9e387fd65b6f3bf3cb729baa4ab841de8ab869 "./service.sh"
+426c0a2c5e60b2f73a033b058f730703da1f906c1fc563163a94dd22be08d5b607e5f53a99bac43bec379dfddd4301c8bce6af9c0c06cb2e9c4172ca2b4a7a5e9a12 "./zapdos"
+ddf3e1cc42c7cb00a41e7daf1879ac1dd845516cd4fbe214a6be4ff928ba23f25a2dd8bd588eeee6909f8a32003e4697bef2f75bb65e770d057fde17d5c3 "./flash.sh"
+06a828845ac60a2eebdac5a9d24c8c3e9856ceaafd079e6e0b9dccc5db16ffd02bcf89275e1022fb32579afb6a75d794a247d092e7ee0e561cd6aa29268db5e1 "./module.prop"
+0c2e1f0cb1005c65c89bc24a8b4dd06d033c9b624b2cd5a0f63b78909b6485348b3da307df9d2448977e3e102515ca3300de2ec96db8c23626ab994451de "./snorlax"
+9e2a456cee4915f1c34e70857968ca4c389e7ba9d4c157fc13c785b286c8d0aba5378bc4c3f7f963aa31902354802b0f95d768559e050c4f73e3f6f2fb6a "./customize.sh"
+9a003c73307f18ec95eed0658affea288928456bdd19e029dc8b6e34846f00de03c9a23f280712e4896d1009748f766c4e3b0a1a65927fe75997cba8689c7a20 "./META-INF/com/google/android/update-binary"
+9f8c157cbd23b8290319c3a083de43ad0176fde017b9c7821e80aa52c52b97e2ed1e1f98077b8628f2b1cdb70c603d60d67de5c5b81a78c242c87aeca9 "./META-INF/com/google/android/updater-script"
+ec1427206ef9f284681331fe803ec1170fdbe7df4c7affd79b003f625226ab14a82ec0bcde934f53b7c82ffc0400fbe1efaf81e6d980de72049e9d687bab4378 "./porygonz"
 HASHED
 
 # Display UI
@@ -223,7 +221,7 @@ PKG_INSTALLED() {
   [ -z "$2" ] && return 0
   apkpath="$(pm path "$1" | sed -n 's/^package://p' | head -1)"
   [ -z "$apkpath" ] && return 1
-  info="$("$PORYGONZ" dump badging "$apkpath" 2>/dev/null)" || return 1
+  info="$("$PORYGONZ" dump badging "$apkpath" 2>/dev/null)"
   ver="$(echo "$info" | grep -m1 "package: name=" | cut -d"'" -f6)"
   [ "$ver" = "$2" ] || return 1
 }
@@ -282,13 +280,20 @@ CFM () {
   am force-stop com.google.android.documentsui >/dev/null 2>&1
 }
 
+# Wait for processes to complete
+COOLDOWN() {
+  while [ "$(jobs -p | wc -l)" -ge "$1" ]; do
+    sleep 0.1
+  done
+}
+
 # Select/Detect deletion of User Apps and it's components
 SELECTAPPS() {
   PREV_LIST="$(mktemp)"
   CURR_LIST="$(mktemp)"
   find "$SELDIR" -type f -o -type d 2>/dev/null | sort > "$PREV_LIST"
   OFM "$SELFLD"
-  SELECTED=""
+  SELECTED="$TMPLOC/selected.txt"; > "$SELECTED"
   reset=""
   (OPT; > "$SELDIR/SELDONE") &
   while [ ! -f "$SELDIR/SELDONE" ]; do
@@ -320,8 +325,9 @@ SELECTAPPS() {
   DEKH "✔️ Processing your selections..."
   CFM
   while IFS= read -r entry || [ -n "$entry" ]; do
+   (
     IFS=: read -r app size pkg name ver <<< "$entry"
-    [ -n "$name" ] || continue
+    [ -n "$name" ] || exit
     if [ ! -e "$SELDIR/$name" ]; then
       selcomps="Sel_$(SANITIZE "$name" 1)_Parts"
       [ ! -d "/data/media/0/Android/data/$pkg" ] && DELSTR "#ExtData" "$selcomps"
@@ -336,31 +342,26 @@ SELECTAPPS() {
         [ -d "/data/media/0/Android/obb/$pkg" ] && ADDSTR "#Obb" "$selcomps"
         fselcomps="$(eval "printf %s \"\${$selcomps}\"" | tr '\n' ' ')"
       }
-      sizes="$(PADH "$pkg" "$TMPLOC/sizes")"
+      sizes="$(PADH "$pkg" "$TMPLOC/sizes.txt")"
       IFS=':' read -r asize dsize esize msize osize <<< "$sizes"
       size=0; echo "$fselcomps" | grep -qw "#App" && size=$((size + asize)); echo "$fselcomps" | grep -qw "#Data" && size=$((size + dsize)); echo "$fselcomps" | grep -qw "#ExtData" && size=$((size + esize)); echo "$fselcomps" | grep -qw "#Media" && size=$((size + msize)); echo "$fselcomps" | grep -qw "#Obb" && size=$((size + osize))
-      ADDSTR "$app:$size:$pkg:$name:$ver" "SELECTED"
+      ADDSTR "$app:$size:$pkg:$name:$ver:$fselcomps" "$SELECTED"
       [ "$BAKMODE" = "FOLDER" ] && echo "$pkg=$fselcomps" >> "$BAKDIR/appslist.conf"
     fi
+   ) &
+   COOLDOWN "$JOBS"
   done < "$APPMAP"
   [ -z "$SELECTED" ] && DEKH "⚠️ No Installed/User Apps selected"
   APPMAP="$SELECTED"
   rm -rf "$SELDIR"
 }
 
-# Wait for processes to complete
-COOLDOWN() {
-  while [ "$(pgrep -c tar)" -ge "$1" ]; do
-    sleep 1
-  done
-}
-
 # Bundle Apps and its directories
 BUNDAPP() {
   SRC="$1"; NAME="$2"
   [ -d "$SRC/$PKG" ] || return
-  COOLDOWN "$JOBS"
-  tar --exclude='cache' -cf - -C "$SRC" "$PKG" | "$ZAPDOS" -f -q -o "$APP/$NAME.bundle.pack" &
+  COOLDOWN "$((JOBS / 2))"
+  tar --exclude='cache' -cf - -C "$SRC" "$PKG" | "$ZAPDOS" -1 -f -q -o "$APP/$NAME.bundle.pack" &
 }
 
 # Backup Apps
@@ -371,16 +372,17 @@ BAKAPP() {
   APP="$DEST/$PKG"
   [ ! -d "$APP" ] && mkdir -p "$APP"
   [ -f "$APP/Meta.txt" ] && oldsize="$(PADH Size "$APP/Meta.txt")" && IFS='|' read -r oasize odsize oesize omsize oosize <<< "$oldsize"
-  sizes="$(PADH "$PKG" "$TMPLOC/sizes")"
+  sizes="$(PADH "$PKG" "$TMPLOC/sizes.txt")"
   IFS=':' read -r asize dsize esize msize osize <<< "$sizes"
-  DEKH "💾 Backing Up: $label" "h"
+  DEKH "💾 [$ACNT] - Backing Up: $label" "h"
   echo "Name=$label" > "$APP/Meta.txt"
   echo "Version=$ver" >> "$APP/Meta.txt"
-  echo "$COMPONENTS" | grep -qw "#App" && { [ "$asize" != "$oasize" ] && pm path "$PKG" | sed 's/^package://' | tar -cf - --transform "s|.*/$PKG[^/]*/|$PKG/|" -T - | "$ZAPDOS" -f -q -o "$APP/App.bundle.pack" || DEKH "⏭️ Skipping App (unchanged)"; } || asize=0
-  echo "$COMPONENTS" | grep -qw "#Data"     && { [ "$dsize" != "$odsize" ] && BUNDAPP "/data/data" "Data" && BUNDAPP "/data/user_de/0" "UserDe" || DEKH "⏭️ Skipping Data (unchanged)"; } || dsize=0
-  echo "$COMPONENTS" | grep -qw "#ExtData"  && { [ "$esize" != "$oesize" ] && BUNDAPP "/data/media/0/Android/data" "ExtData" || DEKH "⏭️ Skipping External Data (unchanged)"; } || esize=0
-  echo "$COMPONENTS" | grep -qw "#Media"    && { [ "$msize" != "$omsize" ] && BUNDAPP "/data/media/0/Android/media" "Media" || DEKH "⏭️ Skipping Media (unchanged)"; } || msize=0
-  echo "$COMPONENTS" | grep -qw "#Obb"      && { [ "$osize" != "$oosize" ] && BUNDAPP "/data/media/0/Android/obb" "Obb" || DEKH "⏭️ Skipping OBB (unchanged)"; } || osize=0
+  apks="$(pm path "$PKG" | sed 's/^package://')"
+  echo "$COMPONENTS" | grep -qw "#App" && { [ "$asize" != "$oasize" ] && echo "$apks" | tar -cf - -T - | "$ZAPDOS" -1 -f -q -o "$APP/App.bundle.pack" || DEKH "⏭️ Skipping App (unchanged)"; } || asize=0
+  echo "$COMPONENTS" | grep -qw "#Data" && { [ "$dsize" != "$odsize" ] && BUNDAPP "/data/data" "Data" && BUNDAPP "/data/user_de/0" "UserDe" || DEKH "⏭️ Skipping Data (unchanged)"; } || dsize=0
+  echo "$COMPONENTS" | grep -qw "#ExtData" && { [ "$esize" != "$oesize" ] && BUNDAPP "/data/media/0/Android/data" "ExtData" || DEKH "⏭️ Skipping External Data (unchanged)"; } || esize=0
+  echo "$COMPONENTS" | grep -qw "#Media" && { [ "$msize" != "$omsize" ] && BUNDAPP "/data/media/0/Android/media" "Media" || DEKH "⏭️ Skipping Media (unchanged)"; } || msize=0
+  echo "$COMPONENTS" | grep -qw "#Obb" && { [ "$osize" != "$oosize" ] && BUNDAPP "/data/media/0/Android/obb" "Obb" || DEKH "⏭️ Skipping OBB (unchanged)"; } || osize=0
   echo "$COMPONENTS" | grep -qw "#AndroidID" && {
     ID=$(READID "$PKG")
     [ -n "$ID" ] && echo "SSAID=$ID" >> "$APP/Meta.txt"
@@ -392,8 +394,7 @@ BAKAPP() {
 # Add Installed or User Apps
 INSAPPS() {
   [ ! -d "$PKGAPPS" ] && mkdir -p "$PKGAPPS"
-  APPMAP="$TMPLOC/appmap.txt"; > "$TMPLOC/appmap.txt"
-  JOBS=$(( $(nproc) / 2 )); JOBS=${JOBS:-4}
+  APPMAP="$TMPLOC/appmap.txt"; > "$APPMAP" 
   APPSLIST="$(pm list packages -f -3 | sed 's/package://g')"
   if [ "$BAKMODE" = "FOLDER" ] && [ -f "$BAKDIR/appslist.conf" ]; then
     DEKH "📑 Import apps list from config?" "h"
@@ -401,95 +402,60 @@ INSAPPS() {
     OPT; [ $? -eq 0 ] && SELMODE="CONF" || rm -f "$BAKDIR/appslist.conf"
   fi
   [ "$SELMODE" = "FILE" ] && {
-      mkdir -p "$SELDIR"
-      DEKH "📂 $(basename "$SELDIR") folder will open in a moment\n🗑️ Delete only the app file to auto-select its parts\n🗑️ Delete both app and its parts to manually select parts\n🔉 Press any Vol Key to Finish Selection" 2 &
+    mkdir -p "$SELDIR"
+    for comp in "#App" "#Data" "#ExtData" "#Media" "#Obb" "#AndroidID" "#PermAll"; do
+      > "$SELDIR/$comp"
+    done
+    DEKH "📂 $(basename "$SELDIR") folder will open in a moment\n🗑️ Delete only the app file to auto-select its parts\n🗑️ Delete both app and its parts to manually choose parts\n🔉 Press any Volume Key to Finish Selection"
   }
   DEKH "✅ Validating Installed Apps... Please wait"
-  [ "$SELMODE" = "FILE" ] && {
-   for comp in "#App" "#Data" "#ExtData" "#Media" "#Obb" "#AndroidID" "#PermAll"; do
-     > "$SELDIR/$comp"
-   done
-  } &
   while IFS= read -r line || [ -n "$line" ]; do
     (
     pkg="${line##*=}"
     app="${line%=$pkg}"
-    [ -f "$app" ] || continue
+    [ -f "$app" ] || exit
     info="$("$PORYGONZ" dump badging "$app" 2>/dev/null)"
     label="$(echo "$info" | grep -m1 "application-label:" | cut -d"'" -f2)"; label=$(SANITIZE "$label")
-    [ -z "$label" ] && continue
+    [ -z "$label" ] && exit
     ver="$(echo "$info" | grep -m1 "package: name=" | cut -d"'" -f6)"
     asize="$(GETSIZE $(pm path "$pkg" | sed 's/^package://'))"; dsize="$(GETSIZE "/data/data/$pkg")"; esize="$(GETSIZE "/data/media/0/Android/data/$pkg")"; msize="$(GETSIZE "/data/media/0/Android/media/$pkg")"; osize="$(GETSIZE "/data/media/0/Android/obb/$pkg")";
-    echo "$pkg=$asize:$dsize:$esize:$msize:$osize" >> "$TMPLOC/sizes"
+    echo "$pkg=$asize:$dsize:$esize:$msize:$osize" >> "$TMPLOC/sizes.txt"
     size=$((asize + dsize + esize + msize + osize))
     ADDSTR "$app:$size:$pkg:$label:$ver" "$APPMAP"
-    [ "$SELMODE" = "FILE" ] && > "$SELDIR/$label"      
+    [ "$SELMODE" = "FILE" ] && > "$SELDIR/$label"
     ) &
-    sleep 0.1
+    COOLDOWN "$JOBS"
   done <<< "$APPSLIST"; wait
-  SORTSTR "$APPMAP" 2
-  [ "$SELMODE" = "FILE" ] && SELECTAPPS || DEKH "🔌 Press/Hold Power Button Anytime to Finish"
+  [ "$NEWUSER" -eq 1 ] && DEKH "📜 Read Instructions, then press any Volume Key" "h*" && OPT
+  [ "$SELMODE" = "FILE" ] && SELECTAPPS
   PSINSAPPS() {
-    IFS=: read -r app size pkg label ver <<< "$1"
+    IFS=: read -r app size pkg label ver comps <<< "$1"
     if [ "$SELMODE" = "FILE" ]; then
       size=$(GETSIZE $size)
-      selcomps="Sel_$(SANITIZE "$label" 1)_Parts"
-      fselcomps="$(eval "printf %s \"\${$selcomps}\"" | tr '\n' ' ')"
-      [ -n "$fselcomps" ] && {
-      BAKAPP "$pkg" "$PKGAPPS" "$fselcomps"
+      [ -z "$comps" ] && return
+      BAKAPP "$pkg" "$PKGAPPS" "$comps"
       ADDSTR "$pkg" "ADDED"
-      DEKH "📥 Added: $label 📱\nℹ️ Version: $ver | Size: $size \n🧩 Parts: $fselcomps"
-      DEKH "✅ Backup complete for: $label"
-      }
+      DEKH "📥 Added: $label 📱\nℹ️ Version: $ver | Size: $size"
+      cmp=""; for c in $comps; do cmp="${cmp:+$cmp | }$c"; done; DEKH "🧩 Parts: $cmp"
     elif [ "$SELMODE" = "CONF" ]; then
       comps="$(PADH "$pkg" "$BAKDIR/appslist.conf")"
       [ -z "$comps" ] && return
-      sizes="$(PADH "$pkg" "$TMPLOC/sizes")"
+      sizes="$(PADH "$pkg" "$TMPLOC/sizes.txt")"
       IFS=':' read -r asize dsize esize msize osize <<< "$sizes"
       size=0; echo "$comps" | grep -qw "#App" && size=$((size + asize)); echo "$comps" | grep -qw "#Data" && size=$((size + dsize)); echo "$comps" | grep -qw "#ExtData" && size=$((size + esize)); echo "$comps" | grep -qw "#Media" && size=$((size + msize)); echo "$comps" | grep -qw "#Obb" && size=$((size + osize))
       size=$(GETSIZE $size)
       BAKAPP "$pkg" "$PKGAPPS" "$comps"
       ADDSTR "$pkg" "ADDED"
-      DEKH "📥 Added: $label 📱\nℹ️ Version: $ver | Size: $size \n🧩 Parts: $comps"
-      DEKH "✅ Backup complete for: $label"
-    else
-      sizes="$(PADH "$pkg" "$TMPLOC/sizes")"
-      IFS=':' read -r asize dsize esize msize osize <<< "$sizes"
-      DEKH "📦 [$MCNT] - $label ($ver) 📱" "h*"
-      DEKH "🔊 Vol+ Press = App Only\n🔉 Vol- Press = Skip\n🔊 Vol+ Hold = App & Data \n🔉 Vol- Hold = Entire App"
-      OPT "h"; Key=$?
-      case "$Key" in
-        0)
-         size="$asize"; size=$(GETSIZE $size)
-         BAKAPP "$pkg" "$PKGAPPS" "#App"
-         ADDSTR "$pkg" "ADDED"
-         DEKH "📥 Added App Only: $size 📱"
-         DEKH "✅ Backup complete for: $label"
-         ;;
-        10)
-         size="$((asize + dsize))"; size=$(GETSIZE $size)
-         BAKAPP "$pkg" "$PKGAPPS" "#App #Data"
-         ADDSTR "$pkg" "ADDED"
-         DEKH "📥 Added App & Data: $size 📱"
-         DEKH "✅ Backup complete for: $label"
-         ;;
-         11)
-         size="$((asize + dsize + esize + msize + osize))"; size=$(GETSIZE $size)
-         BAKAPP "$pkg" "$PKGAPPS" "#App #Data #ExtData #Media #Obb"
-         ADDSTR "$pkg" "ADDED"
-         DEKH "📥 Added Entire App: $size 📱"
-         DEKH "✅ Backup complete for: $label"
-         ;;
-         *)
-         ADDSTR "$pkg" "SKIPPED"
-         ;;
-      esac
+      DEKH "📥 Added: $label 📱\nℹ️ Version: $ver | Size: $size"
+      cmp=""; for c in $comps; do cmp="${cmp:+$cmp | }$c"; done; DEKH "🧩 Parts: $cmp"
     fi
-    MCNT=$((MCNT + 1))
+    ACNT=$((ACNT + 1))
   }
+  wait
+  SORTSTR "$APPMAP" 2
   START=$(date +%s)
   PRSMOD "$APPMAP" "PSINSAPPS"
-  COOLDOWN "1"
+  DEKH "🔂 Finishing: $(jobs -p | wc -c) Remaining Processes..." && COOLDOWN 1
   END=$(date +%s)
   DURATION=$((END - START))
   MIN=$((DURATION / 60))
@@ -503,21 +469,15 @@ INSAPPS() {
 }
 
 # Check which Rooting Implementation is running
-if [ -d "$ADBDIR/magisk" ] && magisk -V >/dev/null 2>&1 || magisk -v >/dev/null 2>&1; then
+if [ -d "$ADBDIR/magisk" ] && magisk -V >/dev/null 2>&1; then
   ROOT="Magisk"
-  CMD="magisk --install-module"
-  if echo "$(magisk magiskhide sulist 2>&1)" | grep -iq "SuList"; then
-  ROOT="Kitsune"
-  fi
-elif [ -d "$ADBDIR/ksu" ] && ksud -V >/dev/null 2>&1 || ksud -v >/dev/null 2>&1; then
+elif [ -d "$ADBDIR/ksu" ] && ksud -V >/dev/null 2>&1; then
   ROOT="KernelSU"
-  CMD="ksud module install"
-elif [ -d "$ADBDIR/ap" ] && apd -V >/dev/null 2>&1 || apd -v >/dev/null 2>&1; then
+elif [ -d "$ADBDIR/ap" ] && apd -V >/dev/null 2>&1; then
   ROOT="APatch"
-  CMD="apd module install"
 else
-  DEKH "🤖 Cannot determine rooting implementation, if you think it's a mistake, contact @BuildBytes" "hx" 2
-  exit 1
+  DEKH "🤖?? Cannot determine rooting implementation, if you think it's a mistake, report on @BuildBytes" "hx"
+  ROOT="Unknown"
 fi
 
 # Check Integrity
