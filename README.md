@@ -49,7 +49,7 @@
   - Yes you can, just keep `.bundle-mods` file in it to check later if it's a backup folder or not.
   
   ## Selection Style:
-  - Delete temporary Files or placeholders to select modules or apps in `Delete_To_Select` folder.
+  - Delete temporary Files or placeholders to select modules or apps in `Delete_To_Backup` folder.
 
   ## Do I have to reboot after backup or restore?
   - No, unless you're also restoring the Android ID for the app.
